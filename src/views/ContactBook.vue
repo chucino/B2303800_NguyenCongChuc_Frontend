@@ -69,16 +69,21 @@ export default {
     };
   },
   watch: {
-    // Khi nội dung tìm kiếm thay đổi, bỏ chọn liên hệ đang active
+    // Khi thay đổi từ khóa tìm kiếm, reset activeIndex về -1
     searchText() {
       this.activeIndex = -1;
     },
   },
   computed: {
-    // Nối các thuộc tính contact thành chuỗi để dễ tìm kiếm
+    // Mảng các chuỗi dùng để so sánh tìm kiếm
     contactStrings() {
       return this.contacts.map((contact) => {
-        const { name, email, address, phone } = contact;
+        const {
+          name = "",
+          email = "",
+          address = "",
+          phone = "",
+        } = contact || {};
         return [name, email, address, phone].join("").toLowerCase();
       });
     },
@@ -87,15 +92,17 @@ export default {
       if (!this.searchText) return this.contacts;
       const keyword = this.searchText.toLowerCase();
       return this.contacts.filter((_contact, index) =>
-        this.contactStrings[index].includes(keyword)
+        this.contactStrings[index]?.includes(keyword)
       );
     },
-    // Liên hệ đang được chọn
+    // Lấy liên hệ đang được chọn
     activeContact() {
       if (this.activeIndex < 0) return null;
-      return this.filteredContacts[this.activeIndex];
+      const list = this.filteredContacts;
+      if (this.activeIndex >= list.length) return null;
+      return list[this.activeIndex] || null;
     },
-    // Số lượng liên hệ được lọc
+    // Số lượng liên hệ sau khi lọc
     filteredContactsCount() {
       return this.filteredContacts.length;
     },
